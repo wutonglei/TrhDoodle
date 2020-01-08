@@ -23,12 +23,12 @@ import java.util.List;
 
 public class DoodleView extends RelativeLayout {
     private static final String TAG = "trh" + "DoodleView";
+    //暂时赶时间  先
+    int statue = 0;
 
-    int statue;
-
-    public static final int Normal=0;
-    public static final int Edite=1;
-    public static final int Select=2;
+    public static final int Normal = 0;
+    public static final int Edite = 1;
+    public static final int Select = 2;
 
     List<DrawDate> drawDateList = new ArrayList<>();
 
@@ -191,17 +191,29 @@ public class DoodleView extends RelativeLayout {
 
                     } else {
                         boolean flag = false; //单选的
+                        int selectedNum = -1;
+
+
                         for (int i = drawDateList.size() - 1; i >= 0; i--) {
                             DrawDate a = drawDateList.get(i);
                             if (AreaData.isIntersect(areaData, a.areaData)) {
-                                if (flag)
+                                if (flag) {
                                     a.isSelected = false;
-                                else
+                                } else {
+                                    selectedNum = i;
                                     flag = a.isSelected = true;
-                            } else {
-                                a.isSelected = false;
+                                }
+
                             }
                         }
+
+
+                        if (selectedNum == -1)
+                            for (int i = drawDateList.size() - 1; i >= 0; i--) {
+                                DrawDate a = drawDateList.get(i);
+                                a.isSelected = false;
+                            }
+
                     }
 
                     break;
