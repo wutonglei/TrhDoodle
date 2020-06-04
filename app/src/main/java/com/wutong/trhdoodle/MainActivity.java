@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnNormal;
     @BindView(R.id.btn_eidt)
     Button btnEidt;
-    WebViewUtil myWebView;
+//    WebViewUtil myWebView;
     @BindView(R.id.btn_test)
     Button btnTest;
     @BindView(R.id.rl)
@@ -40,14 +40,14 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
-        myWebView = new WebViewUtil(this);
-        ////        myWebView.setProgress(pb);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        myWebView.intoView(rl, params);
-        myWebView.loadUrl("https://www.baidu.com/");
+//        myWebView = new WebViewUtil(this);
+//        ////        myWebView.setProgress(pb);
+//        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//        myWebView.intoView(rl, params);
+//        myWebView.loadUrl("https://www.baidu.com/");
     }
 
-    @OnClick({R.id.btn_normal, R.id.btn_eidt, R.id.btn_delete, R.id.btn_allow, R.id.btn_test})
+    @OnClick({R.id.btn_normal, R.id.btn_eidt, R.id.btn_delete, R.id.btn_allow, R.id.btn_test, R.id.btn_pen, R.id.btn_eraser})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_normal:
@@ -65,6 +65,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btn_test:
                 Toast.makeText(this, "摸你", Toast.LENGTH_SHORT).show();
+                break;
+
+   case R.id.btn_pen:
+       doodle.setPen();
+                Toast.makeText(this, "笔", Toast.LENGTH_SHORT).show();
+                break;
+  case R.id.btn_eraser:
+      doodle.setEraser();
+                Toast.makeText(this, "橡皮", Toast.LENGTH_SHORT).show();
                 break;
 
 

@@ -1,10 +1,14 @@
 package com.wutong.trhdoodleview;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +26,8 @@ import java.util.List;
  */
 
 public class DoodleView extends RelativeLayout {
+
+
     private static final String TAG = "trh" + "DoodleView";
     //暂时赶时间  先
     int statue = 0;
@@ -30,6 +36,9 @@ public class DoodleView extends RelativeLayout {
     public static final int Edite = 1;
     public static final int Select = 2;
 
+    private volatile List<Point> points = new ArrayList<>();
+
+
     List<DrawDate> drawDateList = new ArrayList<>();
 
     /**
@@ -37,7 +46,7 @@ public class DoodleView extends RelativeLayout {
      */
     long downTime;
     long timeLimit = 100;
-    // 2g个StrokeWidth用于 边框的大小设定
+    // 当前画笔
     Paint currentPaint;
     float currentPaintStrokeWidth = 10f;
 
@@ -48,6 +57,22 @@ public class DoodleView extends RelativeLayout {
 
     boolean isEidtMode = false;
 
+    /**
+     * 以下是 实现橡皮的功能
+     */
+    public static final boolean isEraser = true;
+    Bitmap mBufferBitmap;
+    Canvas mBufferCanvas;
+    Bitmap mBitmap;
+    public void setPen() {
+        currentPaint.setXfermode(null);
+
+    }
+
+    public void setEraser() {
+        currentPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+
+    }
 
     AreaData areaData = new AreaData(0, 0, 0, 0);
 
@@ -76,8 +101,30 @@ public class DoodleView extends RelativeLayout {
         currentPaint.setStyle(Paint.Style.STROKE);
         currentPaint.setStrokeWidth(currentPaintStrokeWidth);
         currentPaint.setColor(Color.RED);
+
+
+
+
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mBufferBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mBufferCanvas = new Canvas(mBufferBitmap);
+
+       BitmapFactory.Options options=new BitmapFactory.Options();
+        options.inSampleSize=3;
+        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.picture,options);
+
+    }
 
     @Override
     public void onDrawForeground(Canvas canvas) {
@@ -89,6 +136,15 @@ public class DoodleView extends RelativeLayout {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Log.i(TAG, "onDraw: ");
+
+        canvas.drawBitmap(mBitmap,0,0,null);
+
+
+        if (isEraser) {
+            canvas.drawBitmap(mBufferBitmap, 0, 0, null);
+            return;
+        }
+
 
         for (DrawDate date : drawDateList) {
             canvas.drawPath(date.path, currentPaint);
@@ -236,7 +292,8 @@ public class DoodleView extends RelativeLayout {
                 getMaxFrame(event);
                 break;
         }
-
+        if (drawDateList.size() >= 1)
+            mBufferCanvas.drawPath(drawDateList.get(drawDateList.size() - 1).path, currentPaint);
         invalidate();
         if (isIntercept) {
             return true;
@@ -273,4 +330,20 @@ public class DoodleView extends RelativeLayout {
         drawDate.path = new Path();
         drawDate.path.moveTo(rectF.left, rectF.top);
     }
+
+    public List<Point> getPoints() {
+        return points;
+    }
+
+    /**
+     * 删除到第几个
+     * 注意数据线clone  然后在用
+     */
+    public synchronized void removeToPointIndex(int removeTo) {
+
+        for (int i = 0; i < removeTo; removeTo--) {
+            points.remove(i);
+        }
+    }
+
 }
